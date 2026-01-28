@@ -1,0 +1,28 @@
+body {
+  background: #111;
+  color: #fff;
+  font-family: system-ui;
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.box {
+  width: 300px;
+}
+
+input, button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+button {
+  cursor: pointer;
+}
+
+#error {
+  color: red;
+  margin-top: 10px;
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Chrome Profile Lock",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Chrome Locked"
+  },
+  "host_permissions": ["<all_urls>"]
+}
