@@ -28,16 +28,66 @@ document.getElementById("submit").onclick = async () => {
       chrome.storage.local.set({
         passwordHash: hash,
         locked: false
+      }, () => {
+        // Mở tab trống sau khi set password
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const lockUrl = chrome.runtime.getURL("lock.html");
+          let currentLockTab = null;
+          
+          // Tìm tab đang chứa lock.html
+          for (let tab of tabs) {
+            if (tab.url === lockUrl) {
+              currentLockTab = tab;
+              break;
+            }
+          }
+          
+          // Nếu tìm thấy tab lock.html, redirect nó về tab trống
+          if (currentLockTab && currentLockTab.id) {
+            chrome.tabs.update(currentLockTab.id, { url: "chrome://newtab/" });
+          } else if (tabs[0] && tabs[0].id) {
+            // Nếu không tìm thấy, redirect tab active
+            chrome.tabs.update(tabs[0].id, { url: "chrome://newtab/" });
+          } else {
+            // Nếu không có tab nào, tạo tab mới
+            chrome.tabs.create({ url: "chrome://newtab/" });
+          }
+        });
       });
-      window.close();
     } 
     // Unlock
     else {
       if (res.passwordHash !== hash) {
         return showError("Wrong password");
       }
-      chrome.storage.local.set({ locked: false });
-      window.close();
+      
+      // Set unlocked trước, đợi lưu xong rồi mới redirect
+      chrome.storage.local.set({ locked: false }, () => {
+        // Lấy tab hiện tại (tab đang chứa lock.html)
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const lockUrl = chrome.runtime.getURL("lock.html");
+          let currentLockTab = null;
+          
+          // Tìm tab đang chứa lock.html
+          for (let tab of tabs) {
+            if (tab.url === lockUrl) {
+              currentLockTab = tab;
+              break;
+            }
+          }
+          
+          // Nếu tìm thấy tab lock.html, redirect nó về tab trống
+          if (currentLockTab && currentLockTab.id) {
+            chrome.tabs.update(currentLockTab.id, { url: "chrome://newtab/" });
+          } else if (tabs[0] && tabs[0].id) {
+            // Nếu không tìm thấy, redirect tab active
+            chrome.tabs.update(tabs[0].id, { url: "chrome://newtab/" });
+          } else {
+            // Nếu không có tab nào, tạo tab mới
+            chrome.tabs.create({ url: "chrome://newtab/" });
+          }
+        });
+      });
     }
   });
 };
