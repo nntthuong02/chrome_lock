@@ -12,7 +12,8 @@ chrome.storage.local.get(["passwordHash"], (res) => {
   }
 });
 
-document.getElementById("submit").onclick = async () => {
+// Hàm xử lý submit password
+async function handleSubmit() {
   const pwd = passwordInput.value;
   const confirm = confirmInput.value;
 
@@ -90,7 +91,23 @@ document.getElementById("submit").onclick = async () => {
       });
     }
   });
-};
+}
+
+// Xử lý khi click vào nút OK
+document.getElementById("submit").onclick = handleSubmit;
+
+// Xử lý khi nhấn Enter trên các input field
+passwordInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    handleSubmit();
+  }
+});
+
+confirmInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    handleSubmit();
+  }
+});
 
 function showError(msg) {
   error.innerText = msg;

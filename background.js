@@ -6,7 +6,9 @@ chrome.runtime.onStartup.addListener(() => {
   chrome.storage.local.get(["passwordHash"], (res) => {
     if (res.passwordHash) {
       // Có password thì lock lại khi khởi động
-      chrome.storage.local.set({ locked: true });
+      chrome.storage.local.set({ locked: true }, () => {
+        showLockPage();
+      });
     }
   });
 });
@@ -71,6 +73,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   processingTabs.delete(tabId);
 });
+
+function showLockPage() {
+  const lockUrl = chrome.runtime.getURL("lock.html");
+  chrome.tabs.query({ url: lockUrl }, (tabs) => {
+    if (tabs.length > 0) {
+      // Nếu đã có tab lock, focus vào nó
+      chrome.tabs.update(tabs[0].id, { active: true });
+    } else {
+      // Nếu chưa có, tạo tab mới
+      chrome.tabs.create({ url: lockUrl });
+    }
+  });
+}
 
 function redirectToLock(tabId, currentUrl) {
   const lockUrl = chrome.runtime.getURL("lock.html");
