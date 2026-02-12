@@ -76,13 +76,20 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 function showLockPage() {
   const lockUrl = chrome.runtime.getURL("lock.html");
-  chrome.tabs.query({ url: lockUrl }, (tabs) => {
-    if (tabs.length > 0) {
-      // Nếu đã có tab lock, focus vào nó
-      chrome.tabs.update(tabs[0].id, { active: true });
+  chrome.tabs.query({}, (allTabs) => {
+    const lockTab = allTabs.find(t => t.url === lockUrl);
+    
+    if (lockTab) {
+      chrome.tabs.update(lockTab.id, { active: true });
     } else {
-      // Nếu chưa có, tạo tab mới
-      chrome.tabs.create({ url: lockUrl });
+      chrome.tabs.create({ url: lockUrl }, (newTab) => {
+        // Sau khi tạo trang khóa, đóng các trang "New Tab" trống
+        allTabs.forEach(tab => {
+          if (tab.url === "chrome://newtab/" || tab.url === "about:newtab") {
+            chrome.tabs.remove(tab.id);
+          }
+        });
+      });
     }
   });
 }
